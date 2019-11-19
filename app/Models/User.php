@@ -38,6 +38,11 @@ class User extends Authenticatable
         'admin' => 'boolean',
     ];
 
+    public function roles()
+    {
+        return $this->belongsToMany('App\Models\Role', 'role_user');
+    }
+
     public function isAdmin()
     {
         return $this->admin;
