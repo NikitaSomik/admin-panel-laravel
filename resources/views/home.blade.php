@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('adminlte::page')
 
 @section('content')
 <div class="container">
@@ -20,4 +20,8 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('css')
+    <link rel="stylesheet" href="/css/admin_costom.css">
 @endsection
