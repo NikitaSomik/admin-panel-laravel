@@ -21,12 +21,16 @@ Auth::routes();
 //    return view('home');
 //})->name('admin-home')->middleware('auth');
 
-Route::group(['prefix' => 'admin',  'middleware' => 'auth'], function () {
+Route::group([
+    'prefix' => 'admin',
+    'as' => 'admin_',
+    'middleware' => 'auth'
+], function () {
     Route::get('home', function() {
         return view('home');
-    })->name('admin_home');
+    });
 
     Route::resource('companies', 'Admin\CompanyController');
-    Route::post('companies/get-all', 'Admin\CompanyController@getAllCompanies')->name('companies.get_all');
+    Route::post('companies/update/{id}', 'Admin\CompanyController@update');
     Route::resource('employees', 'Admin\EmployeeController');
 });

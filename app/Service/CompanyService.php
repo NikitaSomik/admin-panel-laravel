@@ -3,11 +3,11 @@
 
 namespace App\Service;
 
-
 use App\Models\Company;
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CompanyService
 {
@@ -21,47 +21,18 @@ class CompanyService
 
     public function saveData($data)
     {
-        $logo = '';
-        if (isset($data['logo']) && !empty($data['logo'])) {
-            $extension = $data['logo']->getClientOriginalExtension();
-            $newName = uniqid();
-            $path = 'images/' .$newName.'.'.$extension;
-            Storage::disk('public')->put($path, File::get($data['logo']));
-            $data['logo'] = $newName . '.' . $extension;
-        }
+        $data['logo'] = (isset($data['logo']) && !empty($data['logo']))
+            ? $this->saveFile($data['logo'])
+            : '';
 
         $this->modelCompany->create($data);
     }
 
     public function updateData($data)
     {
-        $imageName = $data['hidden_image'];
-        if (isset($data['logo']) && !empty($data['logo'])) {
-            $rules = [
-                'name'  =>  'required',
-                'email' =>  'nullable|email|max:255',
-                'logo'  =>  'image|max:2048',
-                'website' => 'nullable|max:255'
-            ];
-            $error = Validator::make($data, $rules);
-            if($error->fails()) {
-                return response()->json(['errors' => $error->errors()->all()]);
-            }
-
-            $extension = $data['logo']->getClientOriginalExtension();
-            $newName = uniqid();
-            $path = 'images/' .$newName.'.'.$extension;
-            Storage::disk('public')->put($path, File::get($data['logo']));
-            $imageName = $newName . '.' . $extension;
-        } else {
-            $rules = ['name' => 'required'];
-
-            $error = Validator::make($data, $rules);
-
-            if($error->fails()) {
-                return response()->json(['errors' => $error->errors()->all()]);
-            }
-        }
+        $imageName = (isset($data['logo']) && !empty($data['logo']))
+            ? $this->saveFile($data['logo'])
+            : $data['hidden_image'];
 
         $formData = [
             'name' => $data['name'],
@@ -69,9 +40,27 @@ class CompanyService
             'logo' => $imageName,
             'website' => $data['website']
         ];
-        $this->modelCompany->find($data['hidden_id'])->update($formData);
 
-        return response()->json(['success' => 'Data is successfully updated']);
+        try {
+            $this->modelCompany->findOrFail($data['hidden_id'])->update($formData);
+        } catch (ModelNotFoundException $e) {
+            throw new HttpResponseException(
+                response()->json([
+                    'status' => false,
+                    'messages' => ['Model not found']
+                ], 404)
+            );
+        }
+    }
+
+    public function saveFile($image)
+    {
+        $extension = $image->getClientOriginalExtension();
+        $newName = uniqid();
+        $path = 'images/' .$newName.'.'.$extension;
+        Storage::disk('public')->put($path, File::get($image));
+        $imageName = $newName . '.' . $extension;
+        return $imageName;
     }
 
 }

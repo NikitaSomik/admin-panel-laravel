@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Exceptions\ModelNotPresentException;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreCompany;
-use App\Http\Requests\UpdateCompany;
 use App\Models\Company;
-use App\Service\CompanyService;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use mysql_xdevapi\Exception;
+use Illuminate\Http\Response;
+use App\Service\CompanyService;
+use Illuminate\Http\JsonResponse;
+use App\Http\Requests\StoreCompany;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+
 
 class CompanyController extends Controller
 {
@@ -32,11 +32,6 @@ class CompanyController extends Controller
      */
     public function index()
     {
-        return view('adminlte.company.index');
-    }
-
-    public function getAllCompanies()
-    {
         if (request()->ajax()) {
             return datatables()->of($this->modelCompany->all())
                 ->addColumn('action', function($data){
@@ -48,12 +43,14 @@ class CompanyController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
+
+        return view('adminlte.company.index');
     }
 
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function create()
     {
@@ -69,14 +66,14 @@ class CompanyController extends Controller
     public function store(StoreCompany $request): JsonResponse
     {
         $this->companyService->saveData($request->only('name', 'email', 'logo', 'website'));
-        return response()->json(['success' => 'Data Added successfully.']);
+        return response()->json(['success' => 'Data Added successfully.'], 201);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return void
      */
     public function show($id)
     {
@@ -88,43 +85,55 @@ class CompanyController extends Controller
      *
      * @param int $id
      * @return JsonResponse
-     * @throws \Exception
+     * @throws HttpResponseException
      */
     public function edit($id): JsonResponse
     {
         try {
             $data = $this->modelCompany->findOrFail($id);
         } catch (ModelNotFoundException $e) {
-            throw new \Exception('Model not found', $e->getCode());
+            throw new HttpResponseException(
+                response()->json([
+                    'status' => false,
+                    'messages' => ['Model not found']
+                ], 404)
+            );
         }
 
-        return response()->json(['data' => $data]);
+        return response()->json(['data' => $data], 200);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param StoreCompany $request
+     * @param int $id
+     * @return JsonResponse
      */
-    public function update(Request $request, $id)
+    public function update(StoreCompany $request, $id): JsonResponse
     {
         $this->companyService->updateData($request->all());
+        return response()->json(['success' => 'Data is successfully updated'], 200);
     }
+
 
     /**
      * Remove the specified resource from storage.
      *
      * @param int $id
-     * @throws \Exception
+     * @throws HttpResponseException
      */
     public function destroy($id)
     {
         try {
             $data = $this->modelCompany->findOrFail($id);
         } catch (ModelNotFoundException $e) {
-            throw new \Exception('Model not found', $e->getCode());
+            throw new HttpResponseException(
+                response()->json([
+                    'status' => false,
+                    'messages' => ['Model not found']
+                ], 404)
+            );
         }
         $data->delete();
     }

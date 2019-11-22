@@ -1,13 +1,3 @@
-{{--@extends('adminlte.master')--}}
-{{--@section('adminlte_css_pre')--}}
-{{--    <link rel="stylesheet" href="{{ asset('vendor/icheck-bootstrap/icheck-bootstrap.min.css') }}">--}}
-{{--@stop--}}
-
-{{--@section('adminlte_css')--}}
-{{--    @stack('css')--}}
-{{--    @yield('css')--}}
-{{--@stop--}}
-{{--@section('body')--}}
 @extends('adminlte::page')
 @section('content')
     <!-- Content Wrapper. Contains page content -->
@@ -234,8 +224,8 @@
             "processing": true,
             "serverSide": true,
             ajax: {
-                "url": '/admin/companies/get-all' + '?_token=' + '{{ csrf_token() }}',
-                "type": "POST",
+                "url": '{{ route('admin_companies.index') }}',
+                "type": "GET",
             },
             columns:[
                 {
@@ -272,14 +262,17 @@
         $('#action_button').val("Add");
         $('#action').val("Add");
         $('#formModal').modal('show');
+        $('#form_result_store').empty();
     });
 
     $('#sample_form').on('submit', function(event){
         event.preventDefault();
-        $('#form_result_store').html('');
+        $('#form_result_store').empty();
+
         if($('#action').val() == 'Add') {
+            $('#form_result_store').empty();
             $.ajax({
-                url:"companies",
+                url:"{{ route('admin_companies.store') }}",
                 method:"POST",
                 data: new FormData(this),
                 contentType: false,
@@ -288,22 +281,28 @@
                 dataType:"json",
                 success:function(data) {
                     let html = '';
-                    if(data.success) {
+                    $('#form_result_store').empty();
+
+                    if (data.success) {
                         html = '<div class="alert alert-success">' + data.success + '</div>';
                         $('#sample_form')[0].reset();
                         $('#companies').DataTable().ajax.reload();
                     }
+
                     $('#form_result_store').html(html);
                 },
                 error: function (data) {
                     let html = '';
-                    if(data && data.responseJSON && data.responseJSON.messages) {
+
+                    if (data && data.responseJSON && data.responseJSON.messages) {
                         let errors = data.responseJSON.messages;
 
                         html = '<div class="alert alert-danger">';
+
                         for(let i = 0; i <= errors.length - 1; i++) {
                             html += '<p>' + errors[i] + '</p>';
                         }
+
                         html += '</div>';
                         $('#form_result_store').html(html);
                     }
@@ -313,33 +312,41 @@
 
         if($('#action').val() == "Edit") {
             let id = $('#hidden_id').val();
+            $('#form_result_store').empty();
+
             $.ajax({
-                url:"companies/" + id + '?_token=' + '{{ csrf_token() }}',
-                method:"PATCH",
-                data:new FormData(this),
+                url:"companies/update/" + id + '?_token=' + '{{ csrf_token() }}',
+                data: new FormData(this),
+                method: "POST",
+                dataType: "json",
                 contentType: false,
                 cache: false,
                 processData: false,
-                dataType:"json",
                 success:function(data) {
                     let html = '';
+                    $('#form_result_store').empty();
+
                     if(data.success) {
                         html = '<div class="alert alert-success">' + data.success + '</div>';
                         $('#sample_form')[0].reset();
-                        $('#store_logo').html('');
                         $('#companies').DataTable().ajax.reload();
                     }
+
                     $('#form_result_store').html(html);
                 },
                 error: function (data) {
+                    debugger;
                     let html = '';
+
                     if(data && data.responseJSON && data.responseJSON.messages) {
                         let errors = data.responseJSON.messages;
 
                         html = '<div class="alert alert-danger">';
+
                         for(let i = 0; i <= errors.length - 1; i++) {
                             html += '<p>' + errors[i] + '</p>';
                         }
+
                         html += '</div>';
                         $('#form_result_store').html(html);
                     }
@@ -349,8 +356,9 @@
     });
 
     $(document).on('click', '.edit', function(){
-        var id = $(this).attr('id');
-        $('#form_result_store').html('');
+        let id = $(this).attr('id');
+        $('#form_result_store').empty();
+
         $.ajax({
             url:"/admin/companies/"+id+"/edit",
             dataType:"json",
@@ -373,6 +381,7 @@
 
     $(document).on('click', '.delete', function(){
         user_id = $(this).attr('id');
+        $('.modal-title').text("Delete Record");
         $('#confirmModal').modal('show');
     });
 
