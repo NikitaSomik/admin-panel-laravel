@@ -24,8 +24,9 @@ Auth::routes();
 Route::group(['prefix' => 'admin',  'middleware' => 'auth'], function () {
     Route::get('home', function() {
         return view('home');
-    })->name('admin-home');
+    })->name('admin_home');
 
     Route::resource('companies', 'Admin\CompanyController');
+    Route::post('companies/get-all', 'Admin\CompanyController@getAllCompanies')->name('companies.get_all');
     Route::resource('employees', 'Admin\EmployeeController');
 });
