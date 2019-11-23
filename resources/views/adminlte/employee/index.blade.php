@@ -10,25 +10,24 @@
 
         <!-- Main content -->
         <section class="content">
-        @component('adminlte.company.custom_content')
-        @endcomponent
-            <!-- /.row -->
+            @component('adminlte.employee.custom_content')
+            @endcomponent
         </section>
         <!-- /.content -->
     </div>
-    <!-- /.content-wrapper -->
+
     <footer class="main-footer">
         @component('adminlte.general.footer')
         @endcomponent
     </footer>
 
     <div class="modal fade" id="formModal" tabindex="-1" role="dialog" aria-labelledby="formModalLabel" aria-hidden="true">
-        @component('adminlte.company.modal_form')
+        @component('adminlte.employee.modal_form')
         @endcomponent
     </div>
 
     <div id="confirmModal" class="modal fade" role="dialog">
-        @component('adminlte.company.confirm_modal')
+        @component('adminlte.employee.confirm_modal')
         @endcomponent
     </div>
 @endsection
@@ -44,12 +43,10 @@
     @stack('js')
     @yield('js')
 
-<!-- page script -->
 <script>
-    let storage = {!! json_encode(asset('storage')) !!};
-    let default_logo = {!! json_encode(asset('images/default-logo.png')) !!};
+    let user_id;
     let crsf = '{{ csrf_token() }}';
 </script>
-    <script src="{{ asset('js/company.js') }}"></script>
+    <script src="{{ asset('js/employee.js') }}"></script>
 @stop
 

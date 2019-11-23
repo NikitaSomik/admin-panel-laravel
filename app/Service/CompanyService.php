@@ -28,7 +28,7 @@ class CompanyService
         $this->modelCompany->create($data);
     }
 
-    public function updateData($data)
+    public function updateData(array $data, int $id)
     {
         $imageName = (isset($data['logo']) && !empty($data['logo']))
             ? $this->saveFile($data['logo'])
@@ -42,7 +42,7 @@ class CompanyService
         ];
 
         try {
-            $this->modelCompany->findOrFail($data['hidden_id'])->update($formData);
+            $this->modelCompany->findOrFail($id)->update($formData);
         } catch (ModelNotFoundException $e) {
             throw new HttpResponseException(
                 response()->json([

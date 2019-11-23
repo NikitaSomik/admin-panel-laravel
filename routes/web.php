@@ -17,9 +17,6 @@ Route::get('/', function () {
 
 Auth::routes();
 
-//Route::get('/admin/home', function() {
-//    return view('home');
-//})->name('admin-home')->middleware('auth');
 
 Route::group([
     'prefix' => 'admin',
@@ -31,6 +28,7 @@ Route::group([
     });
 
     Route::resource('companies', 'Admin\CompanyController');
+    Route::post('companies/get-all', 'Admin\CompanyController@getAllCompanies');
     Route::post('companies/update/{id}', 'Admin\CompanyController@update');
     Route::resource('employees', 'Admin\EmployeeController');
 });

@@ -3,27 +3,27 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Company;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Service\CompanyService;
 use Illuminate\Http\JsonResponse;
-use App\Http\Requests\StoreCompany;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ActionWithCompany;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 
 class CompanyController extends Controller
 {
-    public $modelCompany;
+    public $companyModel;
     public $companyService;
 
     public function __construct(
-        Company $modelCompany,
+        Company $companyModel,
         CompanyService $companyService
     )
     {
-        $this->modelCompany = $modelCompany;
+        $this->companyModel = $companyModel;
         $this->companyService = $companyService;
     }
 
@@ -33,7 +33,7 @@ class CompanyController extends Controller
     public function index()
     {
         if (request()->ajax()) {
-            return datatables()->of($this->modelCompany->all())
+            return datatables()->of($this->companyModel->all())
                 ->addColumn('action', function($data){
                     $button = '<button type="button" name="edit" id="'.$data->id.'" class="edit btn btn-primary btn-sm">Edit</button>';
                     $button .= '&nbsp;&nbsp;';
@@ -45,6 +45,17 @@ class CompanyController extends Controller
         }
 
         return view('adminlte.company.index');
+    }
+
+    /**
+     * Take a listing of the resource.
+     *
+     * @return Response
+     */
+    public function getAllCompanies()
+    {
+        $data = DB::table('companies')->select('id', 'name')->get();
+        return $data;
     }
 
     /**
@@ -60,12 +71,12 @@ class CompanyController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param StoreCompany $request
+     * @param ActionWithCompany $request
      * @return JsonResponse
      */
-    public function store(StoreCompany $request): JsonResponse
+    public function store(ActionWithCompany $request): JsonResponse
     {
-        $this->companyService->saveData($request->only('name', 'email', 'logo', 'website'));
+        $this->companyService->saveData($request->all());
         return response()->json(['success' => 'Data Added successfully.'], 201);
     }
 
@@ -90,7 +101,7 @@ class CompanyController extends Controller
     public function edit($id): JsonResponse
     {
         try {
-            $data = $this->modelCompany->findOrFail($id);
+            $data = $this->companyModel->findOrFail($id);
         } catch (ModelNotFoundException $e) {
             throw new HttpResponseException(
                 response()->json([
@@ -106,13 +117,13 @@ class CompanyController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param StoreCompany $request
+     * @param ActionWithCompany $request
      * @param int $id
      * @return JsonResponse
      */
-    public function update(StoreCompany $request, $id): JsonResponse
+    public function update(ActionWithCompany $request, $id): JsonResponse
     {
-        $this->companyService->updateData($request->all());
+        $this->companyService->updateData($request->all(), $id);
         return response()->json(['success' => 'Data is successfully updated'], 200);
     }
 
@@ -126,7 +137,7 @@ class CompanyController extends Controller
     public function destroy($id)
     {
         try {
-            $data = $this->modelCompany->findOrFail($id);
+            $data = $this->companyModel->findOrFail($id);
         } catch (ModelNotFoundException $e) {
             throw new HttpResponseException(
                 response()->json([

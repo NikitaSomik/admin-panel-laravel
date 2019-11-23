@@ -1,3 +1,11 @@
 .custom-wrapper {
     margin-left: 0px !important;
 }
+
+.custom-modal-header {
+    justify-content: center;
+    border-bottom-width: 0px;
+}
+.custom-modal-header > .confirm_modal_result_store {
+    width: 90%;
+}

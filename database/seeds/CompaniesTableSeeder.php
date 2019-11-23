@@ -18,9 +18,9 @@ class CompaniesTableSeeder extends Seeder
 
         for($i = 1; $i < 100; $i++) {
 
-            $logo = $faker->image('public/storage/images',640,480, null, false);
+            $logo = $faker->image('public/storage/images',640,480, 'business', false);
             $company = [
-                'name' => $faker->name,
+                'name' => $faker->company,
                 'email' => $faker->email,
                 'logo' => $logo,
                 'created_at' => Carbon::now(),
