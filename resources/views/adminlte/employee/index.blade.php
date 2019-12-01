@@ -47,6 +47,6 @@
     let user_id;
     let crsf = '{{ csrf_token() }}';
 </script>
-    <script src="{{ asset('js/employee.js') }}"></script>
+    <script type="module" src="{{ asset('js/employee.js') }}"></script>
 @stop
 

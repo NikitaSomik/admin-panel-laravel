@@ -46,10 +46,11 @@
 
 <!-- page script -->
 <script>
+    let user_id;
     let storage = {!! json_encode(asset('storage')) !!};
     let default_logo = {!! json_encode(asset('images/default-logo.png')) !!};
     let crsf = '{{ csrf_token() }}';
 </script>
-    <script src="{{ asset('js/company.js') }}"></script>
+    <script type="module" src="{{ asset('js/company.js') }}"></script>
 @stop
 

@@ -1,10 +1,4 @@
-
-$.ajaxSetup({
-    headers: {
-        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-    }
-});
-
+import {error_data, ajaxDelete} from './general.js';
 
 $(function () {
     $('#companies').DataTable({
@@ -60,7 +54,6 @@ $('#sample_form').on('submit', function(event) {
     set_empty_result_store();
     let actionVal = $('#action').val();
 
-    console.log(actionVal)
     if(actionVal === 'Add') {
         let url = 'companies';
         let data = new FormData(this);
@@ -105,54 +98,16 @@ $(document).on('click', '.delete', function() {
 });
 
 $('#ok_button').click(function() {
-    action_button(true);
-    $('.custom-modal-header').remove();
-
-    $.ajax({
-        url: `companies/${user_id}?_token=${crsf}`,
-        method: 'DELETE',
-        beforeSend:function(){
-            $('#ok_button').text('Deleting...');
-        },
-        success:function(data) {
-            setTimeout(function(){
-                action_button(false);
-                $('#confirmModal').modal('hide');
-                $('#companies').DataTable().ajax.reload();
-            }, 1000);
-        },
-        error: function (data) {
-            $('.modal-content')
-                .prepend(
-                    '<div class="modal-header custom-modal-header">\n' +
-                    '<div class="confirm_modal_result_store"></div>\n' +
-                    '</div>'
-                );
-
-            let html = '';
-            $('#ok_button').text('Delete');
-            if(data && data.responseJSON && data.responseJSON.messages) {
-                let errors = data.responseJSON.messages;
-                html = '<div class="alert alert-danger">';
-
-                for(let i = 0; i <= errors.length - 1; i++) {
-                    html += '<p>' + errors[i] + '</p>';
-                }
-
-                html += '</div>';
-                $('.confirm_modal_result_store').html(html);
-                action_button(false);
-            }
-        }
-    })
+    let url = `companies/${user_id}?_token=${crsf}`;
+    ajaxDelete(url, user_id);
 });
 
 
 
-let ajaxAction = (url, data) => {
+let ajaxAction = (url, data, method = 'POST') => {
     $.ajax({
         url: url,
-        method:"POST",
+        method: method,
         data: data,
         contentType: false,
         cache:false,
@@ -166,10 +121,6 @@ let ajaxAction = (url, data) => {
         }
     })
 };
-
-let action_button = (bool) => {
-    $('#ok_button').prop('disabled', bool);
-}
 
 let set_empty_result_store = () => {
     $('#form_result_store').empty();
@@ -192,19 +143,4 @@ let success_data = (data) => {
     set_html_result_storage(html);
 };
 
-let error_data = (data) => {
-    let html = '';
-
-    if (data && data.responseJSON && data.responseJSON.messages) {
-        let errors = data.responseJSON.messages;
-        html = '<div class="alert alert-danger">';
-
-        for(let i = 0; i <= errors.length - 1; i++) {
-            html += '<p>' + errors[i] + '</p>';
-        }
-
-        html += '</div>';
-        set_html_result_storage(html);
-    }
-};
 
