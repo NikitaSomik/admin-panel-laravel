@@ -1,4 +1,8 @@
-import {error_data, ajaxDelete} from './general.js';
+import {
+    error_data, ajaxDelete,
+    set_html_result_storage,
+    set_empty_result_store
+} from './general.js';
 
 $(function () {
     $('#employees').DataTable({
@@ -79,7 +83,7 @@ $('#sample_form').on('submit', function(event){
 
     if(actionVal === 'Add') {
         let url = `employees`;
-        let data = new FormData(this);
+        let data = $('#sample_form').serializeArray();
         ajaxAction(url, data);
     }
 
@@ -139,7 +143,7 @@ $(document).on('click', '.delete', function(){
 
 $('#ok_button').click(function() {
     let url = `employees/${user_id}?_token=${crsf}`;
-    ajaxDelete(url, user_id);
+    ajaxDelete(url);
 });
 
 

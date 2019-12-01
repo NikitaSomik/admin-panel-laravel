@@ -1,4 +1,9 @@
-import {error_data, ajaxDelete} from './general.js';
+import {
+    error_data,
+    ajaxDelete,
+    set_html_result_storage,
+    set_empty_result_store
+} from './general.js';
 
 $(function () {
     $('#companies').DataTable({
@@ -99,10 +104,8 @@ $(document).on('click', '.delete', function() {
 
 $('#ok_button').click(function() {
     let url = `companies/${user_id}?_token=${crsf}`;
-    ajaxDelete(url, user_id);
+    ajaxDelete(url);
 });
-
-
 
 let ajaxAction = (url, data, method = 'POST') => {
     $.ajax({
@@ -122,13 +125,6 @@ let ajaxAction = (url, data, method = 'POST') => {
     })
 };
 
-let set_empty_result_store = () => {
-    $('#form_result_store').empty();
-};
-
-let set_html_result_storage = (html) => {
-    $('#form_result_store').html(html);
-};
 
 let success_data = (data) => {
     let html = '';
