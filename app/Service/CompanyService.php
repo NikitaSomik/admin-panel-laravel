@@ -11,21 +11,21 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CompanyService
 {
+    public $companyModel;
 
-    public $modelCompany;
-
-    public function __construct(Company $modelCompany)
+    public function __construct(Company $companyModel)
     {
-        $this->modelCompany = $modelCompany;
+        $this->companyModel = $companyModel;
     }
 
     public function saveData($data)
     {
-        $data['logo'] = (isset($data['logo']) && !empty($data['logo']))
+        $data['logo'] = (isset($data['logo'])
+            && !empty($data['logo']))
             ? $this->saveFile($data['logo'])
             : '';
 
-        $this->modelCompany->create($data);
+        $this->companyModel->create($data);
     }
 
     public function updateData(array $data, int $id)
@@ -42,7 +42,7 @@ class CompanyService
         ];
 
         try {
-            $this->modelCompany->findOrFail($id)->update($formData);
+            $this->companyModel->findOrFail($id)->update($formData);
         } catch (ModelNotFoundException $e) {
             throw new HttpResponseException(
                 response()->json([
@@ -55,12 +55,41 @@ class CompanyService
 
     public function saveFile($image)
     {
-        $extension = $image->getClientOriginalExtension();
         $newName = uniqid();
+        $extension = $image->getClientOriginalExtension();
         $path = 'images/' .$newName.'.'.$extension;
         Storage::disk('public')->put($path, File::get($image));
         $imageName = $newName . '.' . $extension;
         return $imageName;
     }
 
+    public function delete(int $id)
+    {
+        try {
+            $data = $this->companyModel->findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            throw new HttpResponseException(
+                response()->json([
+                    'status' => false,
+                    'messages' => ['Model not found']
+                ], 404)
+            );
+        }
+
+        if ($path = $data->logo) {
+            $this->deleteFileFromStorage($path);
+        }
+
+        $data->delete();
+    }
+
+    public function deleteFileFromStorage(string $path)
+    {
+        $logoPath = '/images/' . $path;
+        $existFile = Storage::disk('public')->exists($logoPath);
+
+        if ($existFile) {
+            Storage::disk('public')->delete($logoPath);
+        }
+    }
 }

@@ -132,20 +132,12 @@ class CompanyController extends Controller
      * Remove the specified resource from storage.
      *
      * @param int $id
+     * @return JsonResponse
      * @throws HttpResponseException
      */
-    public function destroy($id)
+    public function destroy(int $id)
     {
-        try {
-            $data = $this->companyModel->findOrFail($id);
-        } catch (ModelNotFoundException $e) {
-            throw new HttpResponseException(
-                response()->json([
-                    'status' => false,
-                    'messages' => ['Model not found']
-                ], 404)
-            );
-        }
-        $data->delete();
+        $this->companyService->delete($id);
+        return response()->json(['success' => 'Data is successfully deleted'], 200);
     }
 }

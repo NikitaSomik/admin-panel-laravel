@@ -26,7 +26,7 @@ class ActionWithCompany extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|unique:companies|max:255|min:3',
+            'name' => 'required|max:255|min:3',
             'email' => 'nullable|email|max:255',
             'logo' => 'nullable|image|max:2048',
             'website' => 'nullable|max:255'
