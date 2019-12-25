@@ -19,7 +19,7 @@ services:
   ### NGINX Server #########################################
   nginx:
     build:
-      context: ./nginx
+      context: nginx
       args:
         - PHP_UPSTREAM_CONTAINER=${NGINX_PHP_UPSTREAM_CONTAINER}
         - PHP_UPSTREAM_PORT=${NGINX_PHP_UPSTREAM_PORT}
@@ -45,14 +45,13 @@ services:
 ### PHP-FPM ##############################################
   php-fpm:
     build:
-        context: .
+        context: ""
         args:
           - CHANGE_SOURCE=${CHANGE_SOURCE}
           - DOCKER_PHP_VERSION=${PHP_VERSION}
           - DOCKER_PHALCON_VERSION=${PHALCON_VERSION}
           - INSTALL_XDEBUG=${PHP_FPM_INSTALL_XDEBUG}
           - INSTALL_PHPDBG=${PHP_FPM_INSTALL_PHPDBG}
-          - INSTALL_BLACKFIRE=${INSTALL_BLACKFIRE}
           - INSTALL_SSH2=${PHP_FPM_INSTALL_SSH2}
           - INSTALL_SOAP=${PHP_FPM_INSTALL_SOAP}
           - INSTALL_XSL=${PHP_FPM_INSTALL_XSL}
@@ -126,7 +125,7 @@ services:
 ### PHP Worker ############################################
   php-worker:
     build:
-      context: .
+      context: ""
       args:
         - PHP_VERSION=${PHP_VERSION}
         - INSTALL_PGSQL=${PHP_WORKER_INSTALL_PGSQL}
@@ -154,7 +153,7 @@ services:
 ### Laravel Horizon ############################################
   laravel-horizon:
     build:
-      context: .
+      context: ""
       dockerfile: laravel-horizon/Dockerfile
       args:
         - PHP_VERSION=${PHP_VERSION}
@@ -176,7 +175,7 @@ services:
   ### MySQL ################################################
   mysql:
     build:
-      context: .
+      context: ""
       args:
         - MYSQL_VERSION=${MYSQL_VERSION}
       dockerfile: mysql/Dockerfile
@@ -197,7 +196,7 @@ services:
 ### Redis ################################################
   redis:
     build:
-      context: .
+      context: ""
       dockerfile: redis/Dockerfile
     volumes:
       - ${DATA_PATH_HOST}/redis:/data
@@ -212,7 +211,7 @@ services:
 ### Redis Cluster ##########################################
   redis-cluster:
     build:
-      context: .
+      context: ""
       dockerfile: redis-cluster/Dockerfile
     ports:
       - "${REDIS_CLUSTER_PORT_RANGE}:7000-7005"
@@ -223,7 +222,7 @@ services:
 ### Beanstalkd ###########################################
   beanstalkd:
     build:
-      context: .
+      context: ""
       dockerfile: beanstalkd/Dockerfile
     ports:
       - "${BEANSTALKD_HOST_PORT}:11300"
@@ -237,7 +236,7 @@ services:
 ### Beanstalkd Console ###################################
   beanstalkd-console:
     build:
-      context: .
+      context: ""
       dockerfile: beanstalkd-console/Dockerfile
     ports:
       - "${BEANSTALKD_CONSOLE_HOST_PORT}:2080"

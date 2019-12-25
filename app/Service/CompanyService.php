@@ -18,7 +18,7 @@ class CompanyService
         $this->companyModel = $companyModel;
     }
 
-    public function saveData($data)
+    public function saveData($data): void
     {
         $data['logo'] = (isset($data['logo'])
             && !empty($data['logo']))
@@ -28,7 +28,7 @@ class CompanyService
         $this->companyModel->create($data);
     }
 
-    public function updateData(array $data, int $id)
+    public function updateData(array $data, int $id): void
     {
         $imageName = (isset($data['logo']) && !empty($data['logo']))
             ? $this->saveFile($data['logo'])
@@ -53,7 +53,7 @@ class CompanyService
         }
     }
 
-    public function saveFile($image)
+    public function saveFile($image): string
     {
         $newName = uniqid();
         $extension = $image->getClientOriginalExtension();
@@ -83,7 +83,7 @@ class CompanyService
         $data->delete();
     }
 
-    public function deleteFileFromStorage(string $path)
+    public function deleteFileFromStorage(string $path): void
     {
         $logoPath = '/images/' . $path;
         $existFile = Storage::disk('public')->exists($logoPath);

@@ -135,7 +135,7 @@ class CompanyController extends Controller
      * @return JsonResponse
      * @throws HttpResponseException
      */
-    public function destroy(int $id)
+    public function destroy(int $id): JsonResponse
     {
         $this->companyService->delete($id);
         return response()->json(['success' => 'Data is successfully deleted'], 200);
