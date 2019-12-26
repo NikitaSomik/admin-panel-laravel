@@ -10,12 +10,10 @@ sleep 30
 cd ../
 
 composer install
-#mkdir './storage/app/public/images'
-#cd docker
+cd docker
+docker-compose exec php-fpm mkdir storage/app/public/images
+docker-compose exec php-fpm php artisan key:generate
+docker-compose exec php-fpm php artisan storage:link
+docker-compose exec php-fpm php artisan migrate --seed
 
-#docker-compose exec php-fpm php artisan key:generate
-#docker-compose exec php-fpm php artisan storage:link
-
-#docker-compose exec php-fpm php artisan migrate --seed
-#docker-compose down
 
