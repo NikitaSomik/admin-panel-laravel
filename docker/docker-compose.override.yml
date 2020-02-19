@@ -1,0 +1,152 @@
+version: '3.7'
+
+services:
+  php:
+    build:
+      target: dev
+    environment:
+      - TZ=Europe/Kiev
+      - PHP_IDE_CONFIG=serverName=${DEBUG_SERVER_NAME}
+      - XDEBUG_CONFIG=remote_host=${DEBUG_REMOTE_HOST} remote_port=${DEBUG_REMOTE_PORT} idekey=${DEBUG_IDEKEY}
+      - APP_NAME=Temabok
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_URL=http://temabok.local
+      - APP_TIMEZONE=Europe/Kiev
+      - LOG_CHANNEL=stack
+      - DB_CONNECTION=pgsql
+      - DB_HOST_MANAGEMENT=postgres
+      - DB_PORT_MANAGEMENT=5432
+      - DB_DATABASE_MANAGEMENT_FILE=/run/secrets/psql-db
+      - DB_USERNAME_MANAGEMENT_FILE=/run/secrets/psql-user
+      - DB_PASSWORD_MANAGEMENT_FILE=/run/secrets/psql-pw
+      - DB_CONNECTION_DRAFT=mongodb
+      - DB_HOST_DRAFT=mongo
+      - DB_PORT_DRAFT=27017
+      - DB_DATABASE_DRAFT_FILE=/run/secrets/mongo-db
+      - DB_USERNAME_DRAFT_FILE=/run/secrets/mongo-user
+      - DB_PASSWORD_DRAFT_FILE=/run/secrets/mongo-pw
+      - JWT_SECRET_FILE=/run/secrets/jwt-secret
+      - DATAPORTEN_KEY_FILE=/run/secrets/dataporten-key
+      - DATAPORTEN_SECRET_FILE=/run/secrets/dataporten-secret
+      - DATAPORTEN_REDIRECT_URI=http://temabok.local/dataporten
+      - FILESYSTEM_DRIVER=public_uploads
+      - BROADCAST_DRIVER=log
+      - CACHE_DRIVER=file
+      - QUEUE_CONNECTION=sync
+      - SESSION_DRIVER=file
+      - SESSION_LIFETIME=120
+      - REDIS_HOST=127.0.0.1
+      - REDIS_PASSWORD=null
+      - REDIS_PORT=6379
+      - MAIL_DRIVER=smtp
+      - MAIL_HOST=smtp.mailtrap.io
+      - MAIL_PORT=2525
+      - MAIL_USERNAME=null
+      - MAIL_PASSWORD=null
+      - MAIL_ENCRYPTION=null
+      - MIX_PUSHER_APP_KEY="${PUSHER_APP_KEY}"
+      - MIX_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
+    secrets:
+      - psql-user
+      - psql-pw
+      - psql-db
+      - mongo-user
+      - mongo-pw
+      - mongo-db
+      - dataporten-key
+      - dataporten-secret
+      - jwt-secret
+    volumes:
+      - ./../temabok-back:/var/www/back
+
+  dashboard-frontend-static:
+    build:
+      args:
+        BUILD_MODE: local
+    volumes:
+      - dashboard-frontend-static:/app_static
+
+  nginx:
+    build:
+      target: dev
+    environment:
+      - TZ=Europe/Kiev
+    ports:
+      - 80:80
+    volumes:
+      - ./../temabok-back:/var/www/back
+      - type: volume
+        source: dashboard-frontend-static
+        target: /var/www/front
+        read_only: true
+
+  postgres:
+    build:
+      target: dev
+    environment:
+      - TZ=Europe/Kiev
+      - POSTGRES_USER_FILE=/run/secrets/psql-user
+      - POSTGRES_PASSWORD_FILE=/run/secrets/psql-pw
+      - POSTGRES_DB_FILE=/run/secrets/psql-db
+    secrets:
+      - psql-user
+      - psql-pw
+      - psql-db
+    ports:
+      - 5432:5432
+    volumes:
+      - ./postgres/volumes:/var/lib/postgresql/data
+
+  mongo:
+    build:
+      target: dev
+    environment:
+      - TZ=Europe/Kiev
+      - MONGO_INITDB_ROOT_USERNAME_FILE=/run/secrets/mongo-user
+      - MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/mongo-pw
+      - MONGO_INITDB_DATABASE_FILE=/run/secrets/mongo-db
+    secrets:
+      - mongo-user
+      - mongo-pw
+      - mongo-db
+    ports:
+      - 27017:27017
+    volumes:
+      - ./mongo/volumes:/data/db
+
+  portainer:
+    image: portainer/portainer
+    command: -H unix:///var/run/docker.sock
+    restart: always
+    ports:
+      - 9000:9000
+      - 8000:8000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+
+volumes:
+  portainer_data:
+  dashboard-frontend-static:
+    driver: local
+
+secrets:
+  psql-user:
+    file: ./postgres/psql-fake-user.txt
+  psql-pw:
+    file: ./postgres/psql-fake-password.txt
+  psql-db:
+    file: ./postgres/psql-fake-db.txt
+  mongo-user:
+    file: ./mongo/mongo-fake-user.txt
+  mongo-pw:
+    file: ./mongo/mongo-fake-password.txt
+  mongo-db:
+    file: ./mongo/mongo-fake-db.txt
+  dataporten-key:
+    file: ../dp-key.txt
+  dataporten-secret:
+    file: ../dp-secret.txt
+  jwt-secret:
+    file: ../jwt-secret.txt
