@@ -2,40 +2,32 @@ version: '3.7'
 
 services:
   php:
-    image: temabok-php
+    image: php
     build:
-      context: ./../temabok-back
-      dockerfile: devops/php/Dockerfile
-    container_name: temabok-api
+      context: ./../
+      dockerfile: ./docker/php/Dockerfile
+    container_name: api
     depends_on:
-      - postgres
-      - mongo
+      - mysql
 
-  dashboard-frontend-static:
-    image: temabok-dashboard-frontend-static
-    build:
-      context: ./../temabok-front
-      dockerfile: ./devops/Dockerfile
+#  dashboard-frontend-static:
+#    image: temabok-dashboard-frontend-static
+#    build:
+#      context: ./../temabok-front
+#      dockerfile: ./devops/Dockerfile
 
   nginx:
-    image: temabok-nginx
+    image: nginx
     build:
       context: ./nginx
       dockerfile: Dockerfile
-    container_name: temabok-nginx
+    container_name: nginx
     depends_on:
       - php
 
-  postgres:
-    image: temabok-postgres
+  mysql:
+    image: mysql
     build:
-      context: ./postgres
+      context: ./mysql
       dockerfile: Dockerfile
-    container_name: temabok-postgres
-
-  mongo:
-    image: temabok-mongo
-    build:
-      context: ./mongo
-      dockerfile: Dockerfile
-    container_name: temabok-mongo
+    container_name: mysql

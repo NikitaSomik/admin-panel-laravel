@@ -22,11 +22,11 @@ file_env() {
 # This should be called after mysql_check_config, but before any other functions
 docker_setup_env() {
 	# Initialize values that might be stored in a file
-	file_env 'DB_DATABASE_MANAGEMENT'
-	file_env 'DB_USERNAME_MANAGEMENT'
-	file_env 'DB_PASSWORD_MANAGEMENT'
-	file_env 'DATAPORTEN_KEY'
-	file_env 'DATAPORTEN_SECRET'
+	file_env 'DB_DATABASE'
+	file_env 'DB_USERNAME'
+	file_env 'DB_PASSWORD'
+#	file_env 'DATAPORTEN_KEY'
+#	file_env 'DATAPORTEN_SECRET'
 }
 
 docker_setup_env "$@"
@@ -42,19 +42,34 @@ then
   cp .env.example .env
 fi
 
-cd /var/www/back && php artisan key:generate && php artisan migrate --seed && php artisan passport:install
+cd /var/www/back && php artisan key:generate && php artisan migrate --seed
 
 chown -R :www-data storage bootstrap/cache
 chmod -R g+w storage bootstrap/cache
 
 #TODO this chgrp is bad thing.
-cd public
-if [ ! -d "uploads" ]
+#cd public
+#if [ ! -d "uploads" ]
+#then
+#  mkdir "uploads"
+#fi
+
+cd storage/app
+if [ ! -d "public" ]
 then
-  mkdir "uploads"
+  mkdir "public"
 fi
 
-chmod -R ug+rwx uploads
-chown -R :www-data uploads
+chmod -R ug+rwx public
+chown -R :www-data public
+
+cd public
+if [ ! -d "images" ]
+then
+  mkdir "images"
+fi
+
+chmod -R ug+rwx images
+chown -R :www-data images
 
 php-fpm
