@@ -19,8 +19,8 @@ services:
   nginx:
     image: nginx
     build:
-      context: ./nginx
-      dockerfile: Dockerfile
+      context: ./../
+      dockerfile: ./docker/nginx/Dockerfile
     container_name: nginx
     depends_on:
       - php
@@ -28,6 +28,6 @@ services:
   mysql:
     image: mysql
     build:
-      context: ./mysql
-      dockerfile: Dockerfile
+      context: ./../
+      dockerfile: ./docker/mysql/Dockerfile
     container_name: mysql

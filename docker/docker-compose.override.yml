@@ -8,15 +8,15 @@ services:
       - TZ=Europe/Kiev
       - PHP_IDE_CONFIG=serverName=${DEBUG_SERVER_NAME}
       - XDEBUG_CONFIG=remote_host=${DEBUG_REMOTE_HOST} remote_port=${DEBUG_REMOTE_PORT} idekey=${DEBUG_IDEKEY}
-      - APP_NAME=Temabok
-      - APP_ENV=local
-      - APP_DEBUG=true
-      - APP_URL=http://admin-panel.local
+      - APP_NAME=Test-Laravel
+      - APP_ENV=${APP_ENV}
+      - APP_DEBUG=${APP_DEBUG}
+      - APP_URL=${APP_URL}
       - APP_TIMEZONE=Europe/Kiev
       - LOG_CHANNEL=stack
-      - DB_CONNECTION=mysql
-      - DB_HOST=postgres
-      - DB_PORT=5432
+      - DB_CONNECTION=${DB_CONNECTION}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
       - DB_DATABASE_FILE=/run/secrets/mysql-db
       - DB_USERNAME_FILE=/run/secrets/mysql-user
       - DB_PASSWORD_FILE=/run/secrets/mysql-pw
@@ -57,21 +57,8 @@ services:
       - mysql-user
       - mysql-pw
       - mysql-db
-#      - mongo-user
-#      - mongo-pw
-#      - mongo-db
-#      - dataporten-key
-#      - dataporten-secret
-#      - jwt-secret
     volumes:
       - ./../back:/var/www/back
-
-  dashboard-frontend-static:
-    build:
-      args:
-        BUILD_MODE: local
-    volumes:
-      - dashboard-frontend-static:/app_static
 
   nginx:
     build:
@@ -82,10 +69,6 @@ services:
       - 80:80
     volumes:
       - ./../back:/var/www/back
-      - type: volume
-        source: dashboard-frontend-static
-        target: /var/www/front
-        read_only: true
 
   mysql:
     build:
@@ -95,47 +78,15 @@ services:
       - MYSQL_USER_FILE=/run/secrets/mysql-user
       - MYSQL_PASSWORD_FILE=/run/secrets/mysql-pw
       - MYSQL_DB_FILE=/run/secrets/mysql-db
+      - MYSQL_ROOT_PASSWORD=admin!!
     secrets:
       - mysql-user
       - mysql-pw
       - mysql-db
     ports:
-      - 5432:5432
+      - 3306:3306
     volumes:
       - ./mysql/volumes:/var/lib/mysql/data
-
-#  mongo:
-#    build:
-#      target: dev
-#    environment:
-#      - TZ=Europe/Kiev
-#      - MONGO_INITDB_ROOT_USERNAME_FILE=/run/secrets/mongo-user
-#      - MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/mongo-pw
-#      - MONGO_INITDB_DATABASE_FILE=/run/secrets/mongo-db
-#    secrets:
-#      - mongo-user
-#      - mongo-pw
-#      - mongo-db
-#    ports:
-#      - 27017:27017
-#    volumes:
-#      - ./mongo/volumes:/data/db
-
-#  portainer:
-#    image: portainer/portainer
-#    command: -H unix:///var/run/docker.sock
-#    restart: always
-#    ports:
-#      - 9000:9000
-#      - 8000:8000
-#    volumes:
-#      - /var/run/docker.sock:/var/run/docker.sock
-#      - portainer_data:/data
-
-volumes:
-#  portainer_data:
-  dashboard-frontend-static:
-    driver: local
 
 secrets:
   mysql-user:
@@ -144,15 +95,3 @@ secrets:
     file: ./mysql/mysql-fake-password.txt
   mysql-db:
     file: ./mysql/mysql-fake-db.txt
-#  mongo-user:
-#    file: ./mongo/mongo-fake-user.txt
-#  mongo-pw:
-#    file: ./mongo/mongo-fake-password.txt
-#  mongo-db:
-#    file: ./mongo/mongo-fake-db.txt
-#  dataporten-key:
-#    file: ../dp-key.txt
-#  dataporten-secret:
-#    file: ../dp-secret.txt
-#  jwt-secret:
-#    file: ../jwt-secret.txt

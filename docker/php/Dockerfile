@@ -116,14 +116,14 @@ ENV TZ=Europe/Kiev \
     MIX_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
 # Many more ENV may be needed here, and updated in docker-php-entrypoint file
 
-COPY devops/php/wait-for-it.sh /usr/local/bin/wait-for-it.sh
-RUN chmod +x /usr/local/bin/wait-for-it.sh
+#COPY devops/php/wait-for-it.sh /usr/local/bin/wait-for-it.sh
+#RUN chmod +x /usr/local/bin/wait-for-it.sh
 
 # Boot.sh
-COPY devops/php/boot.sh /usr/local/bin/php_boot.sh
+COPY docker/boot.sh /usr/local/bin/php_boot.sh
 RUN chmod +x /usr/local/bin/php_boot.sh
 
-CMD /usr/local/bin/wait-for-it.sh postgres:5432 -- /usr/local/bin/wait-for-it.sh mongo:27017 -- /usr/local/bin/php_boot.sh
+#CMD /usr/local/bin/wait-for-it.sh postgres:5432 -- /usr/local/bin/wait-for-it.sh mongo:27017 -- /usr/local/bin/php_boot.sh
 
 
 
@@ -136,7 +136,7 @@ RUN apt-get update && apt-get install -y wget git unzip \
     && pecl install xdebug \
     && docker-php-ext-enable xdebug
 
-COPY devops/php/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
+COPY ./docker/php/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
 
 
@@ -165,7 +165,7 @@ FROM base as test
 ########################
 ### Stage - "production"
 ########################
-FROM base as prod
-
-COPY --chown=www-data:www-data ./ /var/www/back
-RUN /usr/local/bin/composer.phar dump-autoload -o
+#FROM base as prod
+#
+#COPY --chown=www-data:www-data .. /var/www/back
+#RUN /usr/local/bin/composer.phar dump-autoload -o
