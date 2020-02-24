@@ -1,12 +1,12 @@
 version: '3.7'
 
 services:
-  php:
-    image: php
+  php-fpm:
+    image: php-fpm
     build:
       context: ./../
-      dockerfile: ./docker/php/Dockerfile
-    container_name: api
+      dockerfile: ./docker/php-fpm/Dockerfile
+    container_name: php-fpm
     depends_on:
       - mysql
 
@@ -23,7 +23,7 @@ services:
       dockerfile: ./docker/nginx/Dockerfile
     container_name: nginx
     depends_on:
-      - php
+      - php-fpm
 
   mysql:
     image: mysql

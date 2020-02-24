@@ -1,4 +1,4 @@
 ########################
 ### Stage - "base"
 ########################
-FROM mysql:5.7 as dev
+FROM mysql:8.0.0 as dev

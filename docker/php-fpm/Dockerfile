@@ -1,7 +1,7 @@
 ########################
 ### Stage - "base"
 ########################
-FROM php:7.4.2-fpm as base
+FROM php:7.4.2-fpm as dev
 
 RUN apt-get update && apt-get install --no-install-recommends --no-install-suggests -y \
     apt-transport-https \
@@ -41,12 +41,12 @@ RUN docker-php-ext-install \
     sockets
 
 # install mongodb ext
-RUN pecl install mongodb \
-    && docker-php-ext-enable mongodb
+#RUN pecl install mongodb \
+#    && docker-php-ext-enable mongodb
 
 # configure packages
-RUN docker-php-ext-configure intl
-RUN docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql
+#RUN docker-php-ext-configure intl
+#RUN docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql
 
 ENV TZ=Europe/Oslo
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -85,13 +85,17 @@ ENV TZ=Europe/Kiev \
 
     LOG_CHANNEL=stack \
 
-    DB_CONNECTION=pgsql \
-    DB_HOST_MANAGEMENT=postgres \
-    DB_PORT_MANAGEMENT=5432 \
+    DB_CONNECTION=mysql \
+    DB_HOST=mysql \
+    DB_PORT=3306 \
 
-    DB_CONNECTION_DRAFT=mongodb \
-    DB_HOST_DRAFT=mongo \
-    DB_PORT_DRAFT=27017 \
+#    DB_CONNECTION=pgsql \
+#    DB_HOST_MANAGEMENT=postgres \
+#    DB_PORT_MANAGEMENT=5432 \
+#
+#    DB_CONNECTION_DRAFT=mongodb \
+#    DB_HOST_DRAFT=mongo \
+#    DB_PORT_DRAFT=27017 \
 
     FILESYSTEM_DRIVER=public_uploads \
 
@@ -130,13 +134,13 @@ RUN chmod +x /usr/local/bin/php_boot.sh
 ########################
 ### Stage - "development"
 ########################
-FROM base as dev
+FROM base as test
 
 RUN apt-get update && apt-get install -y wget git unzip \
     && pecl install xdebug \
     && docker-php-ext-enable xdebug
 
-COPY ./docker/php/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
+COPY ./docker/php-fpm/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
 
 

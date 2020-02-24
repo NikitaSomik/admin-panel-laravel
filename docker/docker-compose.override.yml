@@ -1,7 +1,7 @@
 version: '3.7'
 
 services:
-  php:
+  php-fpm:
     build:
       target: dev
     environment:
@@ -11,15 +11,15 @@ services:
       - APP_NAME=Test-Laravel
       - APP_ENV=${APP_ENV}
       - APP_DEBUG=${APP_DEBUG}
-      - APP_URL=${APP_URL}
+      - APP_URL=http://admin-panel.local
       - APP_TIMEZONE=Europe/Kiev
       - LOG_CHANNEL=stack
-      - DB_CONNECTION=${DB_CONNECTION}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_DATABASE_FILE=/run/secrets/mysql-db
-      - DB_USERNAME_FILE=/run/secrets/mysql-user
-      - DB_PASSWORD_FILE=/run/secrets/mysql-pw
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - MYSQL_DATABASE_FILE=/run/secrets/mysql-db
+      - MYSQL_USER_FILE=/run/secrets/mysql-user
+      - MYSQL_PASSWORD_FILE=/run/secrets/mysql-pw
 #      - DB_CONNECTION=pgsql
 #      - DB_HOST_MANAGEMENT=postgres
 #      - DB_PORT_MANAGEMENT=5432
@@ -69,6 +69,7 @@ services:
       - 80:80
     volumes:
       - ./../back:/var/www/back
+      - ./../nginx/conf.d/:/etc/nginx/conf.d/
 
   mysql:
     build:
@@ -77,8 +78,13 @@ services:
       - TZ=Europe/Kiev
       - MYSQL_USER_FILE=/run/secrets/mysql-user
       - MYSQL_PASSWORD_FILE=/run/secrets/mysql-pw
-      - MYSQL_DB_FILE=/run/secrets/mysql-db
-      - MYSQL_ROOT_PASSWORD=admin!!
+#      - MYSQL_DB_FILE=/run/secrets/mysql-db
+#      - MYSQL_ROOT_PASSWORD=admin!!
+#      - MYSQL_USER=admin
+#      - MYSQL_PASSWORD=admin!
+#      - MYSQL_DATABASE=admin-panel-test
+      - MYSQL_DATABASE_FILE=/run/secrets/mysql-db
+      - MYSQL_ROOT_PASSWORD=root!!
     secrets:
       - mysql-user
       - mysql-pw
@@ -86,7 +92,8 @@ services:
     ports:
       - 3306:3306
     volumes:
-      - ./mysql/volumes:/var/lib/mysql/data
+      - ./mysql/volumes:/var/lib/mysql
+      - ./mysql/my.cnf:/etc/mysql/my.cnf
 
 secrets:
   mysql-user:
