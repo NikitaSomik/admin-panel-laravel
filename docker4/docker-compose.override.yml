@@ -4,6 +4,8 @@ services:
   php-fpm:
     build:
       target: dev
+    expose:
+      - "9000"
     environment:
       - TZ=Europe/Kiev
       - PHP_IDE_CONFIG=serverName=${DEBUG_SERVER_NAME}
@@ -60,16 +62,36 @@ services:
     volumes:
       - ./../back:/var/www/back
 
+#  nginx:
+#    build:
+#      target: dev
+#      args:
+#        - PHP_UPSTREAM_CONTAINER=php-fpm
+#        - PHP_UPSTREAM_PORT=9000
+#    environment:
+#      - TZ=Europe/Kiev
+#    ports:
+#      - 80:80
+#      - 443:443
+#    volumes:
+#      - ./../back:/var/www/back
+#      - ./logs/nginx/:/var/log/nginx
+#      - ./nginx/sites/:/etc/nginx/sites-available
+#      - ./nginx/ssl/:/etc/nginx/ssl
+
   nginx:
     build:
       target: dev
-    environment:
-      - TZ=Europe/Kiev
+#    environment:
+#      - TZ=Europe/Kiev
     ports:
-      - 80:80
+      - "8810:80"
+      - "443:443"
     volumes:
       - ./../back:/var/www/back
-      - ./../nginx/conf.d/:/etc/nginx/conf.d/
+#      - ./logs/nginx/:/var/log/nginx
+#      - ./nginx/sites/:/etc/nginx/sites-available
+#      - ./nginx/ssl/:/etc/nginx/ssl
 
   mysql:
     build:

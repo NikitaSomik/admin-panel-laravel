@@ -1,33 +1,77 @@
-version: '3.7'
-
+version: '3'
 services:
-  php-fpm:
-    image: php-fpm
-    build:
-      context: ./../
-      dockerfile: ./docker/php-fpm/Dockerfile
-    container_name: php-fpm
-    depends_on:
-      - mysql
+    php-fpm:
+        build:
+            context: ./php-fpm
+            args:
+              - INSTALL_BCMATH=${PHP_FPM_INSTALL_BCMATH}
+              - INSTALL_MYSQLI=${PHP_FPM_INSTALL_MYSQLI}
+              - INSTALL_INTL=${PHP_FPM_INSTALL_INTL}
+              - INSTALL_IMAGEMAGICK=${PHP_FPM_INSTALL_IMAGEMAGICK}
+              - INSTALL_OPCACHE=${PHP_FPM_INSTALL_OPCACHE}
+              - INSTALL_PHPREDIS=${PHP_FPM_INSTALL_PHPREDIS}
+              - PUID=${PHP_FPM_PUID}
+              - PGID=${PHP_FPM_PGID}
+        container_name: php-fpm
+        volumes:
+            - ${APP_PATH_HOST}:${APP_PATH_CONTAINER}
+        expose:
+          - "9000"
+        links:
+          - mysql
+        environment:
+          - "DB_PORT=3306"
+          - "DB_HOST=localhost"
+        working_dir: ${APP_PATH_CONTAINER}
 
-#  dashboard-frontend-static:
-#    image: temabok-dashboard-frontend-static
-#    build:
-#      context: ./../temabok-front
-#      dockerfile: ./devops/Dockerfile
+### MySQL ################################################
+    mysql:
+      build:
+        context: ./mysql
+        args:
+          - MYSQL_VERSION=${MYSQL_VERSION}
+      container_name: mysql
+      environment:
+        - MYSQL_DATABASE=${MYSQL_DATABASE}
+        - MYSQL_USER=${MYSQL_USER}
+        - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+        - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+        - TZ=${WORKSPACE_TIMEZONE}
+      volumes:
+        - ${DATA_PATH_HOST}:/var/lib/mysql
+#        - ${MYSQL_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
+      ports:
+        - "${MYSQL_PORT}:3306"
+### Composer ################################################
+    composer:
+      image: composer:1.9
+      volumes:
+        - ${APP_PATH_HOST}:${APP_PATH_CONTAINER}
+      working_dir: ${APP_CODE_PATH_HOST}
+      command: composer install
 
-  nginx:
-    image: nginx
-    build:
-      context: ./../
-      dockerfile: ./docker/nginx/Dockerfile
-    container_name: nginx
-    depends_on:
-      - php-fpm
 
-  mysql:
-    image: mysql
-    build:
-      context: ./../
-      dockerfile: ./docker/mysql/Dockerfile
-    container_name: mysql
+#    app:
+#        build:
+#            context: ./
+#            dockerfile: app.docker
+#        volumes:
+#            - ../:/var/www
+#        links:
+#            - database
+#        environment:
+#            - "DB_PORT=3306"
+#            - "DB_HOST=localhost"
+     #MySQL Service
+#    database:
+#      image: mysql:5.7
+#      container_name: mysqldatabase
+#      restart: unless-stopped
+#      tty: true
+#      ports:
+#        - "3306:3306"
+#      environment:
+#        MYSQL_DATABASE: laraveldb
+#        MYSQL_USER: laravel
+#        MYSQL_PASSWORD: laravelpassworddb
+#        MYSQL_ROOT_PASSWORD: rootpasswordmysql

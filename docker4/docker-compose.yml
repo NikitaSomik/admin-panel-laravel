@@ -1,0 +1,33 @@
+version: '3.7'
+
+services:
+  php-fpm:
+    image: php-fpm
+    build:
+      context: ./../
+      dockerfile: ./docker/php-fpm/Dockerfile
+    container_name: php-fpm
+    depends_on:
+      - mysql
+
+#  dashboard-frontend-static:
+#    image: temabok-dashboard-frontend-static
+#    build:
+#      context: ./../temabok-front
+#      dockerfile: ./devops/Dockerfile
+
+  nginx:
+    image: nginx
+    build:
+      context: ./../
+      dockerfile: ./docker/nginx/Dockerfile
+    container_name: nginx
+    links:
+      - php-fpm
+
+  mysql:
+    image: mysql
+    build:
+      context: ./../
+      dockerfile: ./docker/mysql/Dockerfile
+    container_name: mysql

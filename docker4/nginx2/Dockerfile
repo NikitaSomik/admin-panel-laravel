@@ -2,9 +2,15 @@
 ### Stage - "base"
 ########################
 
-FROM nginx:latest as dev
+FROM nginx:alpine as dev
 
 COPY ./docker/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
+
+# Solves 2
+#RUN echo "upstream php-upstream { server php:9000; }" > /etc/nginx/conf.d/upstream.conf
+
+# Solves 3
+#RUN usermod -u 1000 www-data
 
 # If you're in China, or you need to change sources, will be set CHANGE_SOURCE to true in .env.
 
@@ -20,12 +26,12 @@ COPY ./docker/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
 #    && apk add --no-cache openssl \
 #    && apk add --no-cache bash
 #
-#RUN set -x ; \
-#    addgroup -g 82 -S www-data ; \
-#    adduser -u 82 -D -S -G www-data www-data && exit 0 ; exit 1
-#
-#ARG PHP_UPSTREAM_CONTAINER=php-fpm
-#ARG PHP_UPSTREAM_PORT=9000
+RUN set -x ; \
+    addgroup -g 82 -S www-data ; \
+    adduser -u 82 -D -S -G www-data www-data && exit 0 ; exit 1
+
+ARG PHP_UPSTREAM_CONTAINER=php-fpm
+ARG PHP_UPSTREAM_PORT=9000
 
 # Create 'messages' file used from 'logrotate'
 #RUN touch /var/log/messages
@@ -34,8 +40,8 @@ COPY ./docker/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
 #COPY ./docker/nginx/logrotate/nginx /etc/logrotate.d/
 
 # Set upstream conf and remove the default conf
-#RUN echo "upstream php-upstream { server ${PHP_UPSTREAM_CONTAINER}:${PHP_UPSTREAM_PORT}; }" > /etc/nginx/conf.d/upstream.conf \
-#    && rm /etc/nginx/conf.d/default.conf
+RUN echo "upstream php-upstream { server ${PHP_UPSTREAM_CONTAINER}:${PHP_UPSTREAM_PORT}; }" > /etc/nginx/conf.d/upstream.conf \
+    && rm /etc/nginx/conf.d/default.conf
 
 #ADD ./docker/nginx/startup.sh /opt/startup.sh
 #RUN sed -i 's/\r//g' /opt/startup.sh
