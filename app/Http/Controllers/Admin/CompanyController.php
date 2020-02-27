@@ -15,8 +15,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CompanyController extends Controller
 {
-    public $companyModel;
-    public $companyService;
+    public object $companyModel;
+    public object $companyService;
 
     public function __construct(
         Company $companyModel,

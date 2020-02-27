@@ -16,8 +16,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class EmployeeController extends Controller
 {
-    public $companyModel;
-    public $employeeModel;
+    public object $companyModel;
+    public object $employeeModel;
 
     public function __construct(
         Company $companyModel,
